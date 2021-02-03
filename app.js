@@ -18,7 +18,7 @@ const addressList = {
 };
 var arguments = process.argv.pop();
 const address = addressList[arguments];
-console.log(`Transfering to: ${address}`);
+console.log(`Transfering from: ${hostPort} to: ${address}`);
 
 function setHeaders(res, response) {
     let resp = response;
