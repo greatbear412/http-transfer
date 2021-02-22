@@ -11,13 +11,18 @@ var jsonParser = bodyParser.json()
 const hostPort = 5001;
 const prefix = 'http://';
 const addressList = {
-    dev: '172.16.7.84:5000/es_api',
-    prod: '172.16.7.83:5000',
+    dev: '172.16.7.84/es_api',
+    prod: '172.16.7.83',
     local: 'localhost:5000',
     jun: '192.168.1.22:5000'
 };
 var arguments = process.argv.pop();
 const address = addressList[arguments];
+if (address == null) {
+    console.error('Wrong argument!');
+    address = addressList.local;
+}
+
 console.log(`Transfering from: ${hostPort} to: ${address}`);
 
 function setHeaders(res, response) {
@@ -42,12 +47,15 @@ app.use('/', jsonParser, function (req, res) {
         headers: req.headers,
         body: req.body
     }
+    console.log(`Accept: ${req.url}`)
     request(param, function (error, response, body) {
         if (!error) {
             res.status(response.statusCode);
             setHeaders(res, response);
+            console.log(`Receive: ${url}`)
             res.json(response.body);
         } else {
+            console.log(`ReceiveError: ${url}`)
             res.json(error);
         }
     });
