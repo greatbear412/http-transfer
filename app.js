@@ -12,9 +12,10 @@ const hostPort = 5001;
 const prefix = 'http://';
 const addressList = {
     dev: '172.16.7.84/es_api',
-    prod: '172.16.7.83',
+    prod: '172.16.7.83/es_api',
     local: 'localhost:5000',
-    jun: '192.168.1.22:5000'
+    jun: '192.168.1.22:5000',
+    fa: '192.168.1.146:5000'
 };
 var arguments = process.argv.pop();
 const address = addressList[arguments];
@@ -37,7 +38,7 @@ function setHeaders(res, response) {
     }
 }
 
-app.use('/', jsonParser, function (req, res) {
+app.use('/es_api/', jsonParser, function (req, res) {
     var url = `${prefix}${address}${req.url}`;
 
     const param = {
