@@ -2,7 +2,6 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 
-
 var app = express();
 
 // create application/json parser
@@ -17,8 +16,15 @@ const addressList = {
     jun: '192.168.1.22:5000',
     fa: '192.168.1.146:5000'
 };
-var arguments = process.argv.pop();
-const address = addressList[arguments];
+const gzipList = {
+    dev: true,
+    prod: true,
+    local: false,
+    jun: false,
+    fa: false
+}
+var site = process.argv.pop();
+let address = addressList[site];
 if (address == null) {
     console.error('Wrong argument!');
     address = addressList.local;
@@ -31,9 +37,11 @@ function setHeaders(res, response) {
     if (response.toJson && typeof response.toJson === 'function') {
         resp = response.toJson();
     }
-    for (const key in resp.headers) {
-        if (Object.hasOwnProperty.call(resp.headers, key)) {
-            res.setHeader(key, resp.headers[key])
+    const headers = Object.assign({}, resp.headers);
+    const gzipHeaders = ['content-encoding', 'transfer-encoding'];
+    for (const key in headers) {
+        if (Object.hasOwnProperty.call(headers, key) && !gzipHeaders.includes(key)) {
+            res.setHeader(key, headers[key])
         }
     }
 }
@@ -46,7 +54,8 @@ app.use('/es_api/', jsonParser, function (req, res) {
         method: req.method,
         json: true,
         headers: req.headers,
-        body: req.body
+        body: req.body,
+        gzip: gzipList[site]
     }
     console.log(`Accept: ${req.url}`)
     request(param, function (error, response, body) {
