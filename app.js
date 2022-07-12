@@ -7,21 +7,21 @@ var app = express();
 // create application/json parser
 var jsonParser = bodyParser.json()
 
-const hostPort = 5001;
+const hostPort = 8000;
 const prefix = 'http://';
 const addressList = {
-    dev: '172.16.7.84/es_api',
-    prod: '172.16.7.83/es_api',
-    local: 'localhost:5000',
-    jun: '192.168.1.22:5000',
-    fa: '192.168.1.146:5000'
+    dev: 'iot-portal-cloud-gateway.zzdev.sail-cloud.com:8000',
+    // prod: '172.16.7.83/es_api',
+    // local: 'localhost:5000',
+    wqq: '10.137.3.216:8000',
+    dc: '10.137.1.30:8000',
+    ws: '10.137.0.186:8000',
 };
 const gzipList = {
     dev: true,
     prod: true,
     local: false,
-    jun: false,
-    fa: false
+    wqq: false
 }
 var site = process.argv.pop();
 let address = addressList[site];
@@ -30,7 +30,7 @@ if (address == null) {
     address = addressList.local;
 }
 
-console.log(`Transfering from: ${hostPort} to: ${address}`);
+console.log(`Transfering from: localhost:${hostPort} to: ${address}`);
 
 function setHeaders(res, response) {
     let resp = response;
@@ -46,7 +46,9 @@ function setHeaders(res, response) {
     }
 }
 
-app.use('/es_api/', jsonParser, function (req, res) {
+// 代理接口prefix
+// 如遇Vite等已有前缀代理的，考虑用'/'
+app.use('/', jsonParser, function (req, res) {
     var url = `${prefix}${address}${req.url}`;
 
     const param = {
