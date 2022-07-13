@@ -3,23 +3,17 @@ var request = require('request');
 var bodyParser = require('body-parser');
 var chalk = require('chalk');
 const inquirer = require('inquirer');
+const addressList = require('./config');
 
 var app = express();
+var log = console.log;
 
 // create application/json parser
 var jsonParser = bodyParser.json()
 
 const hostPort = 8000;
 const prefix = 'http://';
-const addressList = {
-    dev: '10.141.23.18',
-    // prod: '172.16.7.83/es_api',
-    // local: 'localhost:5000',
-    wqq: '10.137.3.216:8000',
-    dc: '10.137.1.30:8000',
-    ws: '10.137.0.186:8000',
-    wx: '10.137.3.153:8000'
-};
+
 const gzipList = {
     dev: false,
     prod: true,
@@ -36,11 +30,9 @@ let address = '';
 getProxyTarget().then(({
     add
 }) => {
-    address = add.split('-')[1].trim();
+    address = add.split('<>')[1].trim();
     init();
 })
-console.log('------------');
-console.log('Transfering from ' + chalk.blue(`localhost: ${hostPort}`) + ' to ' + chalk.green(`${address}`));
 
 // 复制请求头数据
 function setHeaders(res, response) {
@@ -59,18 +51,14 @@ function setHeaders(res, response) {
 
 // 选择代理地址
 async function getProxyTarget() {
-    const addressList = [
-        `dev - 10.141.23.18`,
-        `王钦钦 - 10.137.3.216:8000`,
-        `董冲 - 10.137.1.30:8000`,
-        `吴申 - 10.137.0.186:8000`,
-        `王星 - 10.137.3.153:8000`
-    ];
+    const list = Object.keys(addressList).map(key => {
+        return `${key} <> ${addressList[key]}`
+    })
     questions = [{
         type: "list",
         message: `选择代理地址：`,
         name: 'add',
-        choices: addressList
+        choices: list
     }];
     return inquirer.prompt(questions).then(answers => {
         return answers;
@@ -78,7 +66,13 @@ async function getProxyTarget() {
 }
 
 function init() {
-    console.log('');
+    log('');
+    log('------Transfering------');
+    log('from: ' + chalk.blue(`localhost: ${hostPort}`))
+    log('to: ' + chalk.green(`${address}`));
+    log('-----------------------');
+    log('');
+
     // 代理接口prefix
     // 如遇Vite等已有前缀代理的，考虑用'/'
     app.use('/', jsonParser, function (req, res) {
@@ -92,15 +86,15 @@ function init() {
             body: req.body,
             gzip: gzipList[site]
         }
-        console.log(chalk.blue(`Accept: ${req.url}`));
+        log(chalk.blue(`Accept: ${req.url}`));
         request(param, function (error, response, body) {
             if (!error) {
                 res.status(response.statusCode);
                 setHeaders(res, response);
-                console.log(chalk.green(`Receive: ${url}`));
+                log(chalk.green(`Receive: ${url}`));
                 res.json(response.body);
             } else {
-                console.log(chalk.red(`ReceiveError: ${url}`))
+                log(chalk.red(`ReceiveError: ${url}`))
                 res.json(error);
             }
         });
