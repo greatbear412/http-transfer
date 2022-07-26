@@ -79,7 +79,7 @@ function init() {
         var url = `${prefix}${address}${req.url}`;
 
         const param = {
-            url: url,
+            url,
             method: req.method,
             json: true,
             headers: req.headers,
