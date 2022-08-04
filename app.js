@@ -3,7 +3,13 @@ var request = require('request');
 var bodyParser = require('body-parser');
 var chalk = require('chalk');
 const inquirer = require('inquirer');
-const addressList = require('./config');
+const util = require('util');
+const {
+    addressList,
+    gzipList,
+    proxyList,
+    proxy
+} = require('./config');
 
 var app = express();
 var log = console.log;
@@ -14,18 +20,8 @@ var jsonParser = bodyParser.json()
 const hostPort = 8000;
 const prefix = 'http://';
 
-const gzipList = {
-    dev: false,
-    prod: true,
-    local: false,
-    wqq: false
-}
 var site = process.argv.pop();
 let address = '';
-// if (address == null) {
-//     console.error(chalk.red('Wrong argument!'));
-//     address = addressList.local;
-// }
 
 getProxyTarget().then(({
     add
@@ -86,6 +82,12 @@ function init() {
             body: req.body,
             gzip: gzipList[site]
         }
+
+        if (proxyList[site]) {
+            const _proxy = util.format(url, proxy.ip, proxy.port);
+            param.proxy = _proxy;
+        }
+
         log(chalk.blue(`Accept: ${req.url}`));
         request(param, function (error, response, body) {
             if (!error) {
