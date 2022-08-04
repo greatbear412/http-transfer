@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "node --inspect app.js dev",
+    "dev_Remark": "开启debug模式，代理才生效",
+    "dev": "node --inspect app.js dev",
     "start": "node app.js"
   },
   "keywords": [],
