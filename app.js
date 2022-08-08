@@ -8,16 +8,22 @@ const {
     addressList,
     gzipList,
     proxyList,
-    proxy
+    proxy,
+    hostPort
 } = require('./config');
 
 var app = express();
-var log = console.log;
+var log = (content, prefix = true) => {
+    const date = new Date();
+    const rlt = prefix ?
+        chalk.white.bold(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`) + '  ' + content :
+        content;
+    console.log(rlt);
+}
 
 // create application/json parser
 var jsonParser = bodyParser.json()
 
-const hostPort = 8000;
 const prefix = 'http://';
 
 var site = process.argv.pop();
@@ -62,11 +68,11 @@ async function getProxyTarget() {
 }
 
 function init() {
-    log('');
-    log('------Transfering------');
-    log('from: ' + chalk.blue(`localhost: ${hostPort}`))
-    log('to: ' + chalk.green(`${address}`));
-    log('-----------------------');
+    log('', false);
+    log('------Transfering------', false);
+    log('from: ' + chalk.blue(`localhost: ${hostPort}`), false)
+    log('to: ' + chalk.green(`${address}`), false);
+    log('-----------------------', false);
     log('');
 
     // 代理接口prefix
